@@ -10,17 +10,17 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 # Enohpelet Game TODO
 
 ## Current Task
-- At the end of a game, allow players to listen to all the recordings in order to see how the audio has changed.
+- Improve instructions and user feedback (e.g., "Recording...", "Now record what you heard").
 
 ## Backlog
-- Add a "Reveal" or "End Game" button to trigger the final playback sequence.
-- Improve instructions and user feedback (e.g., "Recording...", "Now record what you heard").
 - Player names associated with each turn.
 - Save game state to `localStorage` to allow resuming a game.
 - Shareable results at the end of a game.
 - Online multiplayer functionality.
 
 ## Completed Features
+- At the end of a game, allow players to listen to all the recordings in order to see how the audio has changed.
+- Add a "Reveal" or "End Game" button to trigger the final playback sequence.
 - Record audio from the user's microphone.
 - Stop the recording.
 - Reverse the recorded audio snippet.

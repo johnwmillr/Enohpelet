@@ -8,6 +8,7 @@ const nextTurnButton = document.getElementById('nextTurnButton');
 const turnDisplay = document.getElementById('turnDisplay');
 const historyContainer = document.getElementById('history');
 const gameContainer = document.getElementById('game-container');
+const endGameButton = document.getElementById('endGameButton');
 
 let mediaRecorder;
 let audioChunks = [];
@@ -43,15 +44,18 @@ function updateControlsForTurn() {
             listenButton.disabled = false; // Enable listening to previous turn's audio
         }
     }
+    endGameButton.style.display = audioHistory.length > 0 ? 'inline-block' : 'none';
 }
 
 startGameButton.addEventListener('click', async () => {
-    try {
-        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch (error) {
-        console.error('Error accessing microphone:', error);
-        alert('Microphone access is required to play the game. Please allow access and try again.');
-        return;
+    if (!audioStream) {
+        try {
+            audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (error) {
+            console.error('Error accessing microphone:', error);
+            alert('Microphone access is required to play the game. Please allow access and try again.');
+            return;
+        }
     }
 
     gameInProgress = true;
@@ -61,6 +65,8 @@ startGameButton.addEventListener('click', async () => {
     historyContainer.innerHTML = '<h2>Recording History</h2>';
     startGameButton.style.display = 'none';
     gameContainer.style.display = 'block';
+    endGameButton.style.display = 'none';
+    endGameButton.disabled = false;
 
     updateControlsForTurn();
 });
@@ -152,6 +158,28 @@ playbackButton.addEventListener('click', () => {
     }
 });
 
+endGameButton.addEventListener('click', () => {
+    gameInProgress = false;
+    recordButton.disabled = true;
+    stopButton.disabled = true;
+    listenButton.disabled = true;
+    playbackButton.disabled = true;
+    nextTurnButton.disabled = true;
+    endGameButton.disabled = true;
+    turnDisplay.textContent = 'Game Over';
+    startGameButton.style.display = 'inline-block';
+    endGameButton.style.display = 'none';
+
+    // Restore the original onended behavior in case it was changed
+    audioPlayer.onended = () => {
+        if (currentlyPlayingButton) {
+            currentlyPlayingButton.classList.remove('playing');
+            currentlyPlayingButton.style.removeProperty('--playback-duration');
+            currentlyPlayingButton = null;
+        }
+    };
+});
+
 audioPlayer.addEventListener('play', () => {
     if (currentlyPlayingButton) {
         const duration = audioPlayer.duration;
@@ -175,7 +203,8 @@ function updateHistory() {
         historyItem.classList.add('history-item');
         historyItem.innerHTML = `
             <p>Turn ${index + 1}</p>
-            <button class="play-history-button" data-index="${index}">Play Original</button>
+            <button class="play-history-button" data-index="${index}" data-type="forward">Play Original</button>
+            <button class="play-history-button" data-index="${index}" data-type="reversed">Play Reversed</button>
         `;
         historyContainer.appendChild(historyItem);
     });
@@ -183,7 +212,8 @@ function updateHistory() {
     document.querySelectorAll('.play-history-button').forEach(button => {
         button.addEventListener('click', (e) => {
             const index = e.target.dataset.index;
-            const audioUrl = URL.createObjectURL(audioHistory[index].forward);
+            const type = e.target.dataset.type;
+            const audioUrl = URL.createObjectURL(audioHistory[index][type]);
             audioPlayer.src = audioUrl;
             audioPlayer.play();
             currentlyPlayingButton = e.target;

@@ -6,7 +6,8 @@ const audioPlayer = document.getElementById('audioPlayer');
 const startGameButton = document.getElementById('startGameButton');
 const nextTurnButton = document.getElementById('nextTurnButton');
 const turnDisplay = document.getElementById('turnDisplay');
-const historyContainer = document.getElementById('history');
+const historyList = document.getElementById('history');
+const historyContainer = document.getElementById('history-container');
 const gameContainer = document.getElementById('game-container');
 const endGameButton = document.getElementById('endGameButton');
 
@@ -62,7 +63,8 @@ startGameButton.addEventListener('click', async () => {
     currentTurn = 1;
     audioHistory = [];
 
-    historyContainer.innerHTML = '<h2>Recording History</h2>';
+    historyList.innerHTML = '';
+    historyContainer.style.display = 'none';
     startGameButton.style.display = 'none';
     gameContainer.style.display = 'block';
     endGameButton.style.display = 'none';
@@ -79,7 +81,7 @@ recordButton.addEventListener('click', () => {
 
     recordButton.disabled = true;
     recordButton.classList.add('recording');
-    recordButton.textContent = 'Recording...';
+    recordButton.querySelector('span').textContent = 'Recording...';
     stopButton.disabled = false;
     listenButton.disabled = true;
     playbackButton.disabled = true;
@@ -94,7 +96,7 @@ recordButton.addEventListener('click', () => {
 stopButton.addEventListener('click', () => {
     mediaRecorder.stop();
     recordButton.classList.remove('recording');
-    recordButton.textContent = 'Record';
+    recordButton.querySelector('span').textContent = 'Record';
     stopButton.disabled = true;
     recordButton.disabled = true;
     nextTurnButton.disabled = false;
@@ -129,7 +131,7 @@ stopButton.addEventListener('click', () => {
         currentRecording.reversed = new Blob([wav], { type: 'audio/wav' });
 
         audioHistory.push(currentRecording);
-        updateHistory();
+        // updateHistory(); - We will call this at the end of the game
 
         const audioUrl = URL.createObjectURL(currentRecording.forward);
         audioPlayer.src = audioUrl;
@@ -167,8 +169,12 @@ endGameButton.addEventListener('click', () => {
     nextTurnButton.disabled = true;
     endGameButton.disabled = true;
     turnDisplay.textContent = 'Game Over';
-    startGameButton.style.display = 'inline-block';
-    endGameButton.style.display = 'none';
+    startGameButton.style.display = 'block';
+    // gameContainer.style.display = 'none'; - Keep game container for history
+
+    updateHistory();
+    historyContainer.style.display = 'block';
+
 
     // Restore the original onended behavior in case it was changed
     audioPlayer.onended = () => {
@@ -197,16 +203,18 @@ audioPlayer.addEventListener('ended', () => {
 });
 
 function updateHistory() {
-    historyContainer.innerHTML = '<h2>Recording History</h2>';
+    historyList.innerHTML = '';
     audioHistory.forEach((record, index) => {
         const historyItem = document.createElement('div');
         historyItem.classList.add('history-item');
         historyItem.innerHTML = `
             <p>Turn ${index + 1}</p>
-            <button class="play-history-button" data-index="${index}" data-type="forward">Play Original</button>
-            <button class="play-history-button" data-index="${index}" data-type="reversed">Play Reversed</button>
+            <div class="play-buttons">
+                <button class="play-history-button" data-index="${index}" data-type="forward">Play</button>
+                <button class="play-history-button" data-index="${index}" data-type="reversed">Play Reversed</button>
+            </div>
         `;
-        historyContainer.appendChild(historyItem);
+        historyList.appendChild(historyItem);
     });
 
     document.querySelectorAll('.play-history-button').forEach(button => {

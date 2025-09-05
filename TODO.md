@@ -10,15 +10,17 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 # Enohpelet Game TODO
 
 ## Current Task
-- Improve instructions and user feedback (e.g., "Recording...", "Now record what you heard").
+- Add a hover warning box saying they'll overwrite their previous recording when the user mouses of "Record" if they've already recorded a snippet on their turn.
 
 ## Backlog
+- Improve instructions and user feedback (e.g., "Recording...", "Now record what you heard").
 - Player names associated with each turn.
 - Save game state to `localStorage` to allow resuming a game.
 - Shareable results at the end of a game.
 - Online multiplayer functionality.
 
 ## Completed Features
+- Overhaul the UI and UX to be a beautiful, modern, engaging, responsive, fun web app. Be bold. Use colors and animations.
 - At the end of a game, allow players to listen to all the recordings in order to see how the audio has changed.
 - Add a "Reveal" or "End Game" button to trigger the final playback sequence.
 - Record audio from the user's microphone.

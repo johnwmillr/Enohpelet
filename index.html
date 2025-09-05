@@ -5,29 +5,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enohpelet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="container">
         <h1>Enohpelet</h1>
-        <p>The classic game of telephone with an ear-bending, backward twist.</p>
-        <button id="startGameButton">Start New Game</button>
+        <p class="tagline">The classic game of telephone with an ear-bending, backward twist.</p>
         <div id="game-container" style="display: none;">
             <h2 id="turnDisplay"></h2>
             <div class="controls">
                 <button id="listenButton" style="display: none;">Listen</button>
-                <button id="recordButton">Record</button>
-                <button id="stopButton" disabled>Stop</button>
-                <button id="playbackButton" disabled>Playback</button>
-                <button id="nextTurnButton" disabled>Next Turn</button>
-                <button id="endGameButton" style="display: none;">End Game</button>
+                <button id="recordButton" class="control-button"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="feather feather-mic">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg><span>Record</span></button>
+                <button id="stopButton" class="control-button" disabled><svg xmlns="http://www.w3.org/2000/svg"
+                        width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="feather feather-stop-circle">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                    </svg><span>Stop</span></button>
+                <button id="playbackButton" class="control-button" disabled><span>Play</span></button>
+                <button id="nextTurnButton" class="control-button" disabled><span>Next Turn</span></button>
             </div>
             <audio id="audioPlayer"></audio>
-            <div id="history">
+            <div id="history-container">
                 <h2>Recording History</h2>
+                <div id="history"></div>
             </div>
+            <button id="endGameButton" style="display: none;">End Game</button>
         </div>
+        <button id="startGameButton">Start New Game</button>
     </div>
     <script src="app.js"></script>
 </body>

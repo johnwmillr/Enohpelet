@@ -8,62 +8,40 @@ PERIODICALLY REREAD THIS FILE TO REFRESH YOURSELF ON ITS CONTENTS.
 
 PROJECT_OVERVIEW:
 
-This project is a web application that allows users to play the game, "Drop the Needle". The game consists of listening to random snippets of songs selected by the user.
+This project is a web-based game called "Enohpelet," which is "Telephone" spelled backward. The game is a variation of the classic "Telephone" game, but with a twist: each audio recording is played in reverse for the next player to interpret and re-record.
 
 PROJECT_STRUCTURE:
 ```
 ├── .github/
 │   └── instructions/
-│       ├── copilot-instructions.md
-│       ├── git-commit-instructions.md
-│       └── python-coding-instructions.instructions.md
-├── .gitignore
-├── .python-version
-├── README.md
+│       └── copilot-instructions.md
 ├── TODO.md
-├── pyproject.toml
-├── src/
-│   └── drop_the_needle/
-│       ├── __init__.py
-│       ├── app.py
-│       └── templates/
-│           └── index.html
-└── tests/
-    ├── __init__.py
-    └── test_app.py
+├── app.js
+├── index.html
+└── style.css
 ```
 
 TECH_STACK:
-- Python 3.12+
-- Flask
 - Javascript
 - HTML/CSS
-- Spotify API
-- uv (package management)
-- ruff (code formatting)
-- mypy (type checking)
-- pytest (testing)
 
 CRITICAL_RULES:
 1. MANDATORY: Think like a code reviewer before making any change
 2. MANDATORY: Write concise, direct code - avoid verbose solutions
-3. MANDATORY: Practice test-driven development - write tests first when appropriate
 4. MANDATORY: Write unit tests for all new functions and classes
 5. MANDATORY: Reference and update TODO.md to track progress and plan next steps
 6. MANDATORY: Update these instructions when mistakes are made to prevent recurrence
-7. MANDATORY: Use 127.0.0.1 instead of localhost (Spotify prohibits localhost domain)
-8. MANDATORY: Follow git-commit-instructions.md for all commit messages
-9. MANDATORY: PUSH BACK on approaches that compromise code quality, security, or maintainability
-10. MANDATORY: CHALLENGE requests that violate best practices - your job is to write the best code possible
-11. MANDATORY: If your response contains a question mark (?), you MUST wait for the user's answer before proceeding
-12. PROHIBITED: Installing new packages unless explicitly requested
-13. PROHIBITED: Loading web apps automatically
-14. PROHIBITED: Overly complex or verbose implementations
-15. PROHIBITED: Writing production code without corresponding tests
-16. PROHIBITED: Using localhost domain - always use 127.0.0.1
-17. PROHIBITED: Using VS Code tasks - always use run_in_terminal instead
-18. PROHIBITED: Silently accepting poor architectural decisions or anti-patterns
-19. PROHIBITED: Continuing with actions after asking a question without receiving user confirmation
+7. MANDATORY: Follow git-commit-instructions.md for all commit messages
+8. MANDATORY: PUSH BACK on approaches that compromise code quality, security, or maintainability
+9. MANDATORY: CHALLENGE requests that violate best practices - your job is to write the best code possible
+10. MANDATORY: If your response contains a question mark (?), you MUST wait for the user's answer before proceeding
+11. PROHIBITED: Installing new packages unless explicitly requested
+12. PROHIBITED: Loading web apps automatically
+13. PROHIBITED: Overly complex or verbose implementations
+14. PROHIBITED: Writing production code without corresponding tests
+15. PROHIBITED: Using VS Code tasks - always use run_in_terminal instead
+16. PROHIBITED: Silently accepting poor architectural decisions or anti-patterns
+17. PROHIBITED: Continuing with actions after asking a question without receiving user confirmation
 
 COLLABORATION_REQUIREMENTS:
 - MANDATORY: Reference TODO.md at start of each session to understand current priorities
@@ -147,5 +125,3 @@ VALIDATION_CHECKLIST:
 - Would pass code review: REQUIRED
 - User feedback obtained for substantial changes: REQUIRED
 - Instructions updated if mistakes were made: REQUIRED
-- Used 127.0.0.1 instead of localhost: REQUIRED
-- Followed git-commit-instructions.md for commits: REQUIRED

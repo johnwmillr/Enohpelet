@@ -32,25 +32,66 @@ h1 {
     transition: background-color 0.3s;
 }
 
-.controls button:disabled {
-    background-color: #cccccc;
+button:disabled {
+    background-color: #bdc3c7;
     cursor: not-allowed;
 }
 
-.controls button:hover:not(:disabled) {
-    background-color: #0056b3;
+#startGameButton {
+    background-color: #2ecc71;
+    color: white;
+    font-size: 20px;
+    padding: 15px 30px;
+}
+
+#startGameButton:hover {
+    background-color: #27ae60;
 }
 
 .controls button.recording {
-    background-color: #ff0000;
+    background-color: #e74c3c;
     color: white;
 }
 
-.controls button.recording:hover:not(:disabled) {
-    background-color: #cc0000;
+.controls button.playing::before {
+    width: 100%;
+    transition: width var(--playback-duration, 0s) linear;
+}
+
+.controls button {
+    position: relative;
+    overflow: hidden;
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -webkit-transform: translate3d(0, 0, 0);
+    -moz-transform: translate3d(0, 0, 0);
+}
+
+.controls button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background-color: rgba(52, 152, 219, 0.4);
+    transition: width 0.1s linear;
 }
 
 audio {
     margin-top: 1rem;
     width: 100%;
+}
+
+#history {
+    margin-top: 20px;
+}
+
+.history-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }

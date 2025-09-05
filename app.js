@@ -1,33 +1,83 @@
 const recordButton = document.getElementById('recordButton');
 const stopButton = document.getElementById('stopButton');
-const playButton = document.getElementById('playButton');
-const playForwardButton = document.getElementById('playForwardButton');
+const listenButton = document.getElementById('listenButton');
+const playbackButton = document.getElementById('playbackButton');
 const audioPlayer = document.getElementById('audioPlayer');
+const startGameButton = document.getElementById('startGameButton');
+const nextTurnButton = document.getElementById('nextTurnButton');
+const turnDisplay = document.getElementById('turnDisplay');
+const historyContainer = document.getElementById('history');
+const gameContainer = document.getElementById('game-container');
 
 let mediaRecorder;
 let audioChunks = [];
-let reversedAudioBlob;
-let forwardAudioBlob;
+let currentRecording = {
+    forward: null,
+    reversed: null
+};
 let audioStream = null;
 
-recordButton.addEventListener('click', async () => {
-    if (!audioStream) {
-        try {
-            audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        } catch (error) {
-            console.error('Error accessing microphone:', error);
-            // Optionally, display an error message to the user
-            return;
+let gameInProgress = false;
+let currentTurn = 0;
+let audioHistory = [];
+let currentlyPlayingButton = null;
+
+function updateControlsForTurn() {
+    turnDisplay.textContent = `Player ${currentTurn}'s Turn`;
+
+    recordButton.disabled = false;
+    stopButton.disabled = true;
+    listenButton.disabled = true;
+    playbackButton.disabled = true;
+    nextTurnButton.disabled = true;
+    audioPlayer.src = '';
+
+    if (currentTurn === 1) {
+        listenButton.style.display = 'none';
+    } else {
+        listenButton.style.display = 'inline-block';
+        const lastRecording = audioHistory[audioHistory.length - 1];
+        if (lastRecording && lastRecording.reversed) {
+            const reversedAudioUrl = URL.createObjectURL(lastRecording.reversed);
+            audioPlayer.src = reversedAudioUrl;
+            listenButton.disabled = false; // Enable listening to previous turn's audio
         }
     }
+}
+
+startGameButton.addEventListener('click', async () => {
+    try {
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (error) {
+        console.error('Error accessing microphone:', error);
+        alert('Microphone access is required to play the game. Please allow access and try again.');
+        return;
+    }
+
+    gameInProgress = true;
+    currentTurn = 1;
+    audioHistory = [];
+
+    historyContainer.innerHTML = '<h2>Recording History</h2>';
+    startGameButton.style.display = 'none';
+    gameContainer.style.display = 'block';
+
+    updateControlsForTurn();
+});
+
+recordButton.addEventListener('click', () => {
+    if (!gameInProgress) return;
+
     mediaRecorder = new MediaRecorder(audioStream);
     mediaRecorder.start();
 
+    recordButton.disabled = true;
     recordButton.classList.add('recording');
     recordButton.textContent = 'Recording...';
     stopButton.disabled = false;
-    playButton.disabled = true;
-    playForwardButton.disabled = true;
+    listenButton.disabled = true;
+    playbackButton.disabled = true;
+    nextTurnButton.disabled = true;
     audioPlayer.src = '';
 
     mediaRecorder.addEventListener('dataavailable', event => {
@@ -40,10 +90,13 @@ stopButton.addEventListener('click', () => {
     recordButton.classList.remove('recording');
     recordButton.textContent = 'Record';
     stopButton.disabled = true;
+    recordButton.disabled = true;
+    nextTurnButton.disabled = false;
+    playbackButton.disabled = false;
 
     mediaRecorder.addEventListener('stop', async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        forwardAudioBlob = audioBlob;
+        currentRecording.forward = audioBlob;
         audioChunks = [];
 
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -67,26 +120,76 @@ stopButton.addEventListener('click', () => {
 
         // Convert the reversed buffer back to a Blob
         const wav = audioBufferToWav(reversedBuffer);
-        reversedAudioBlob = new Blob([wav], { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(reversedAudioBlob);
+        currentRecording.reversed = new Blob([wav], { type: 'audio/wav' });
+
+        audioHistory.push(currentRecording);
+        updateHistory();
+
+        const audioUrl = URL.createObjectURL(currentRecording.forward);
         audioPlayer.src = audioUrl;
-        playButton.disabled = false;
-        playForwardButton.disabled = false;
     });
 });
 
-playButton.addEventListener('click', () => {
-    const audioUrl = URL.createObjectURL(reversedAudioBlob);
-    audioPlayer.src = audioUrl;
-    audioPlayer.play();
+nextTurnButton.addEventListener('click', () => {
+    currentTurn++;
+    currentRecording = { forward: null, reversed: null };
+    updateControlsForTurn();
 });
 
-playForwardButton.addEventListener('click', () => {
-    const audioUrl = URL.createObjectURL(forwardAudioBlob);
-    audioPlayer.src = audioUrl;
+listenButton.addEventListener('click', () => {
+    // The audio source is already set in updateControlsForTurn, so we just play.
     audioPlayer.play();
+    currentlyPlayingButton = listenButton;
 });
 
+playbackButton.addEventListener('click', () => {
+    // This plays the original recording for the CURRENT turn, after it's been recorded.
+    if (currentRecording.forward) {
+        const audioUrl = URL.createObjectURL(currentRecording.forward);
+        audioPlayer.src = audioUrl;
+        audioPlayer.play();
+        currentlyPlayingButton = playbackButton;
+    }
+});
+
+audioPlayer.addEventListener('play', () => {
+    if (currentlyPlayingButton) {
+        const duration = audioPlayer.duration;
+        currentlyPlayingButton.style.setProperty('--playback-duration', `${duration}s`);
+        currentlyPlayingButton.classList.add('playing');
+    }
+});
+
+audioPlayer.addEventListener('ended', () => {
+    if (currentlyPlayingButton) {
+        currentlyPlayingButton.classList.remove('playing');
+        currentlyPlayingButton.style.removeProperty('--playback-duration');
+        currentlyPlayingButton = null;
+    }
+});
+
+function updateHistory() {
+    historyContainer.innerHTML = '<h2>Recording History</h2>';
+    audioHistory.forEach((record, index) => {
+        const historyItem = document.createElement('div');
+        historyItem.classList.add('history-item');
+        historyItem.innerHTML = `
+            <p>Turn ${index + 1}</p>
+            <button class="play-history-button" data-index="${index}">Play Original</button>
+        `;
+        historyContainer.appendChild(historyItem);
+    });
+
+    document.querySelectorAll('.play-history-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const index = e.target.dataset.index;
+            const audioUrl = URL.createObjectURL(audioHistory[index].forward);
+            audioPlayer.src = audioUrl;
+            audioPlayer.play();
+            currentlyPlayingButton = e.target;
+        });
+    });
+}
 
 // Helper function to convert AudioBuffer to a WAV file (Blob)
 // This is necessary because you can't directly play back a raw AudioBuffer.

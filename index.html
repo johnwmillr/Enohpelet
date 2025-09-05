@@ -12,13 +12,21 @@
     <div class="container">
         <h1>Enohpelet</h1>
         <p>The classic game of telephone with an ear-bending, backward twist.</p>
-        <div class="controls">
-            <button id="recordButton">Record</button>
-            <button id="stopButton" disabled>Stop</button>
-            <button id="playButton" disabled>Play Reversed</button>
-            <button id="playForwardButton" disabled>Play Forward</button>
+        <button id="startGameButton">Start New Game</button>
+        <div id="game-container" style="display: none;">
+            <h2 id="turnDisplay"></h2>
+            <div class="controls">
+                <button id="listenButton" style="display: none;">Listen</button>
+                <button id="recordButton">Record</button>
+                <button id="stopButton" disabled>Stop</button>
+                <button id="playbackButton" disabled>Playback</button>
+                <button id="nextTurnButton" disabled>Next Turn</button>
+            </div>
+            <audio id="audioPlayer"></audio>
+            <div id="history">
+                <h2>Recording History</h2>
+            </div>
         </div>
-        <audio id="audioPlayer" controls></audio>
     </div>
     <script src="app.js"></script>
 </body>

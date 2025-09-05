@@ -33,3 +33,5 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 - Reverse the recorded audio snippet.
 - Play the reversed audio snippet.
 - Make the user only have to give microphone permissions once.
+- Play the original audio snippet.
+- Turn the recording button red while we're recording.

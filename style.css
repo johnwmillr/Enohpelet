@@ -41,6 +41,15 @@ h1 {
     background-color: #0056b3;
 }
 
+.controls button.recording {
+    background-color: #ff0000;
+    color: white;
+}
+
+.controls button.recording:hover:not(:disabled) {
+    background-color: #cc0000;
+}
+
 audio {
     margin-top: 1rem;
     width: 100%;

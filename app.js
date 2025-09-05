@@ -1,11 +1,13 @@
 const recordButton = document.getElementById('recordButton');
 const stopButton = document.getElementById('stopButton');
 const playButton = document.getElementById('playButton');
+const playForwardButton = document.getElementById('playForwardButton');
 const audioPlayer = document.getElementById('audioPlayer');
 
 let mediaRecorder;
 let audioChunks = [];
 let reversedAudioBlob;
+let forwardAudioBlob;
 let audioStream = null;
 
 recordButton.addEventListener('click', async () => {
@@ -21,9 +23,11 @@ recordButton.addEventListener('click', async () => {
     mediaRecorder = new MediaRecorder(audioStream);
     mediaRecorder.start();
 
-    recordButton.disabled = true;
+    recordButton.classList.add('recording');
+    recordButton.textContent = 'Recording...';
     stopButton.disabled = false;
     playButton.disabled = true;
+    playForwardButton.disabled = true;
     audioPlayer.src = '';
 
     mediaRecorder.addEventListener('dataavailable', event => {
@@ -33,11 +37,13 @@ recordButton.addEventListener('click', async () => {
 
 stopButton.addEventListener('click', () => {
     mediaRecorder.stop();
-    recordButton.disabled = false;
+    recordButton.classList.remove('recording');
+    recordButton.textContent = 'Record';
     stopButton.disabled = true;
 
     mediaRecorder.addEventListener('stop', async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        forwardAudioBlob = audioBlob;
         audioChunks = [];
 
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -65,10 +71,19 @@ stopButton.addEventListener('click', () => {
         const audioUrl = URL.createObjectURL(reversedAudioBlob);
         audioPlayer.src = audioUrl;
         playButton.disabled = false;
+        playForwardButton.disabled = false;
     });
 });
 
 playButton.addEventListener('click', () => {
+    const audioUrl = URL.createObjectURL(reversedAudioBlob);
+    audioPlayer.src = audioUrl;
+    audioPlayer.play();
+});
+
+playForwardButton.addEventListener('click', () => {
+    const audioUrl = URL.createObjectURL(forwardAudioBlob);
+    audioPlayer.src = audioUrl;
     audioPlayer.play();
 });
 

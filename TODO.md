@@ -5,7 +5,7 @@ applyTo: 'TODO.md'
 THIS FILE IS WRITTEN FOR INGESTION BY AN LLM. ALL EDITS SHOULD MAINTAIN THIS FORMAT.
 
 SUMMARY:
-This project is a web-based game called "Enohpelet," which is "Telephone" spelled backward. The game is a variation of the classic "Telephone" game, but with a twist: each audio recording is played in reverse for the next player to interpret and re-record. The core audio functionality (recording, stopping, reversing, and playing) is already implemented. The current focus is on building the turn-based game logic. The file below outlines the current task, the backlog of features, and what has been completed.
+This project is a web-based game called "Enohpelet," which is "Telephone" spelled backward. The game is a variation of the classic "Telephone" game, but with a twist: each audio recording is played in reverse for the next player to interpret and re-record. The file below outlines the current task, the backlog of features, and what has been completed.
 
 # Enohpelet Game TODO
 
@@ -32,3 +32,4 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 - Stop the recording.
 - Reverse the recorded audio snippet.
 - Play the reversed audio snippet.
+- Make the user only have to give microphone permissions once.

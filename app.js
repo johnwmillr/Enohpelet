@@ -6,10 +6,19 @@ const audioPlayer = document.getElementById('audioPlayer');
 let mediaRecorder;
 let audioChunks = [];
 let reversedAudioBlob;
+let audioStream = null;
 
 recordButton.addEventListener('click', async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
+    if (!audioStream) {
+        try {
+            audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (error) {
+            console.error('Error accessing microphone:', error);
+            // Optionally, display an error message to the user
+            return;
+        }
+    }
+    mediaRecorder = new MediaRecorder(audioStream);
     mediaRecorder.start();
 
     recordButton.disabled = true;

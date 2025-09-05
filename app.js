@@ -10,6 +10,7 @@ const historyList = document.getElementById('history');
 const historyContainer = document.getElementById('history-container');
 const gameContainer = document.getElementById('game-container');
 const endGameButton = document.getElementById('endGameButton');
+const recordWarning = document.getElementById('recordWarning');
 
 let mediaRecorder;
 let audioChunks = [];
@@ -23,6 +24,7 @@ let gameInProgress = false;
 let currentTurn = 0;
 let audioHistory = [];
 let currentlyPlayingButton = null;
+let hasRecordedThisTurn = false;
 
 function updateControlsForTurn() {
     turnDisplay.textContent = `Player ${currentTurn}'s Turn`;
@@ -33,6 +35,8 @@ function updateControlsForTurn() {
     playbackButton.disabled = true;
     nextTurnButton.disabled = true;
     audioPlayer.src = '';
+    hasRecordedThisTurn = false;
+    recordWarning.style.display = 'none';
 
     if (currentTurn === 1) {
         listenButton.style.display = 'none';
@@ -73,6 +77,17 @@ startGameButton.addEventListener('click', async () => {
     updateControlsForTurn();
 });
 
+// Record button hover warning functionality
+recordButton.addEventListener('mouseenter', () => {
+    if (hasRecordedThisTurn && !recordButton.disabled) {
+        recordWarning.style.display = 'block';
+    }
+});
+
+recordButton.addEventListener('mouseleave', () => {
+    recordWarning.style.display = 'none';
+});
+
 recordButton.addEventListener('click', () => {
     if (!gameInProgress) return;
 
@@ -98,9 +113,10 @@ stopButton.addEventListener('click', () => {
     recordButton.classList.remove('recording');
     recordButton.querySelector('span').textContent = 'Record';
     stopButton.disabled = true;
-    recordButton.disabled = true;
+    recordButton.disabled = false; // Re-enable so they can record again (overwrite)
     nextTurnButton.disabled = false;
     playbackButton.disabled = false;
+    hasRecordedThisTurn = true;
 
     mediaRecorder.addEventListener('stop', async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });

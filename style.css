@@ -197,6 +197,39 @@ audio {
     display: none;
 }
 
+/* Record Button Warning Tooltip */
+.record-button-container {
+    position: relative;
+    display: inline-block;
+}
+
+.record-warning {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    z-index: 1000;
+}
+
+.record-warning::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #e74c3c;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {

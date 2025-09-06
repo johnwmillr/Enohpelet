@@ -119,6 +119,13 @@ COMMENTS: Minimal, only when code is not self-explanatory
 CONCISENESS: Prefer direct, simple solutions over complex ones
 VERBOSITY: Avoid unnecessary abstractions and over-engineering
 
+TESTING_PROTOCOL:
+- MANDATORY: Use `python3 -m http.server 8000 --bind 127.0.0.1` to test the web app locally
+- MANDATORY: Run the server as a background process with isBackground=true
+- PROHIBITED: Automatically opening browser windows or attempting to open the app
+- PROHIBITED: Using any other local server method
+- NOTE: User will manually test the app at http://127.0.0.1:8000
+
 VALIDATION_CHECKLIST:
 - Meaningful names used: REQUIRED
 - No unnecessary complexity: REQUIRED

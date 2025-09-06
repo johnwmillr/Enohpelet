@@ -10,7 +10,7 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 # Enohpelet Game TODO
 
 ## Current Task
-- No current task - ready for next feature!
+- [No current task - previous task completed]
 
 ## Backlog
 - Online multiplayer functionality.
@@ -20,6 +20,7 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 - Automatically trim silence off the front of somebody's new recording
 
 ## Completed Features
+- Record button now toggles to Stop button while recording (eliminating separate Stop button)
 - Deploy app to GitHub Pages with HTTPS - Live at https://www.johnwmillr.com/Enohpelet/
 - Hide End Game button after clicking it to prevent confusion
 - Optimized microphone usage - only request permission once on "Start New Game", and only stream from microphone during actual recording (when Record button is pressed until Stop is pressed).

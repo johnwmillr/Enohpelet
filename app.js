@@ -1,5 +1,4 @@
 const recordButton = document.getElementById('recordButton');
-const stopButton = document.getElementById('stopButton');
 const listenButton = document.getElementById('listenButton');
 const playbackButton = document.getElementById('playbackButton');
 const audioPlayer = document.getElementById('audioPlayer');
@@ -112,7 +111,8 @@ function updateControlsForTurn() {
     turnDisplay.textContent = `Player ${currentTurn}'s Turn`;
 
     recordButton.disabled = false;
-    stopButton.disabled = true;
+    recordButton.classList.remove('recording');
+    recordButton.querySelector('span').textContent = 'Record';
     listenButton.disabled = true;
     playbackButton.disabled = true;
     nextTurnButton.disabled = true;
@@ -192,7 +192,8 @@ function resetToHomePage() {
 
     // Reset button states
     recordButton.disabled = false;
-    stopButton.disabled = true;
+    recordButton.classList.remove('recording');
+    recordButton.querySelector('span').textContent = 'Record';
     listenButton.disabled = true;
     playbackButton.disabled = true;
     nextTurnButton.disabled = true;
@@ -230,6 +231,63 @@ recordButton.addEventListener('mouseleave', () => {
 recordButton.addEventListener('click', async () => {
     if (!gameInProgress) return;
 
+    // Check if we're currently recording (button is in "Stop" mode)
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        // Stop recording
+        mediaRecorder.stop();
+
+        // Stop the audio stream to stop using the microphone
+        if (audioStream) {
+            audioStream.getTracks().forEach(track => track.stop());
+            audioStream = null;
+        }
+
+        recordButton.classList.remove('recording');
+        recordButton.querySelector('span').textContent = 'Record';
+        nextTurnButton.disabled = false;
+        playbackButton.disabled = false;
+        hasRecordedThisTurn = true;
+
+        updateInstructions("Great! You can now play back your recording or pass to the next player.", false);
+
+        mediaRecorder.addEventListener('stop', async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            currentRecording.forward = audioBlob;
+            audioChunks = [];
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const arrayBuffer = await audioBlob.arrayBuffer();
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+            // Reverse the audio
+            const reversedBuffer = audioContext.createBuffer(
+                audioBuffer.numberOfChannels,
+                audioBuffer.length,
+                audioBuffer.sampleRate
+            );
+
+            for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+                const channelData = audioBuffer.getChannelData(i);
+                const reversedChannelData = reversedBuffer.getChannelData(i);
+                for (let j = 0; j < channelData.length; j++) {
+                    reversedChannelData[j] = channelData[channelData.length - 1 - j];
+                }
+            }
+
+            // Convert the reversed buffer back to a Blob
+            const wav = audioBufferToWav(reversedBuffer);
+            currentRecording.reversed = new Blob([wav], { type: 'audio/wav' });
+
+            audioHistory.push(currentRecording);
+            // updateHistory(); - We will call this at the end of the game
+
+            const audioUrl = URL.createObjectURL(currentRecording.forward);
+            audioPlayer.src = audioUrl;
+        });
+        return;
+    }
+
+    // Start recording
     // We should already have permission from "Start New Game", just create the stream
     try {
         audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -248,74 +306,17 @@ recordButton.addEventListener('click', async () => {
     mediaRecorder = new MediaRecorder(audioStream);
     mediaRecorder.start();
 
-    recordButton.disabled = true;
     recordButton.classList.add('recording');
-    recordButton.querySelector('span').textContent = 'Recording...';
-    stopButton.disabled = false;
+    recordButton.querySelector('span').textContent = 'Stop';
     listenButton.disabled = true;
     playbackButton.disabled = true;
     nextTurnButton.disabled = true;
     audioPlayer.src = '';
 
-    updateInstructions("🎤 Recording... Speak clearly and press Stop when finished!", false);
+    updateInstructions("🎤 Recording... Speak clearly and click Stop when finished!", false);
 
     mediaRecorder.addEventListener('dataavailable', event => {
         audioChunks.push(event.data);
-    });
-});
-
-stopButton.addEventListener('click', () => {
-    mediaRecorder.stop();
-
-    // Stop the audio stream to stop using the microphone
-    if (audioStream) {
-        audioStream.getTracks().forEach(track => track.stop());
-        audioStream = null;
-    }
-
-    recordButton.classList.remove('recording');
-    recordButton.querySelector('span').textContent = 'Record';
-    stopButton.disabled = true;
-    recordButton.disabled = false; // Re-enable so they can record again (overwrite)
-    nextTurnButton.disabled = false;
-    playbackButton.disabled = false;
-    hasRecordedThisTurn = true;
-
-    updateInstructions("Great! You can now play back your recording or pass to the next player.", false);
-
-    mediaRecorder.addEventListener('stop', async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        currentRecording.forward = audioBlob;
-        audioChunks = [];
-
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const arrayBuffer = await audioBlob.arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-        // Reverse the audio
-        const reversedBuffer = audioContext.createBuffer(
-            audioBuffer.numberOfChannels,
-            audioBuffer.length,
-            audioBuffer.sampleRate
-        );
-
-        for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
-            const channelData = audioBuffer.getChannelData(i);
-            const reversedChannelData = reversedBuffer.getChannelData(i);
-            for (let j = 0; j < channelData.length; j++) {
-                reversedChannelData[j] = channelData[channelData.length - 1 - j];
-            }
-        }
-
-        // Convert the reversed buffer back to a Blob
-        const wav = audioBufferToWav(reversedBuffer);
-        currentRecording.reversed = new Blob([wav], { type: 'audio/wav' });
-
-        audioHistory.push(currentRecording);
-        // updateHistory(); - We will call this at the end of the game
-
-        const audioUrl = URL.createObjectURL(currentRecording.forward);
-        audioPlayer.src = audioUrl;
     });
 });
 
@@ -346,7 +347,6 @@ playbackButton.addEventListener('click', () => {
 endGameButton.addEventListener('click', () => {
     gameInProgress = false;
     recordButton.disabled = true;
-    stopButton.disabled = true;
     listenButton.disabled = true;
     playbackButton.disabled = true;
     nextTurnButton.disabled = true;

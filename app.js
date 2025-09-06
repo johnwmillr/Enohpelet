@@ -11,6 +11,8 @@ const historyContainer = document.getElementById('history-container');
 const gameContainer = document.getElementById('game-container');
 const endGameButton = document.getElementById('endGameButton');
 const recordWarning = document.getElementById('recordWarning');
+const instructionDisplay = document.getElementById('instructionDisplay');
+const instructionText = document.getElementById('instructionText');
 
 let mediaRecorder;
 let audioChunks = [];
@@ -26,6 +28,18 @@ let audioHistory = [];
 let currentlyPlayingButton = null;
 let hasRecordedThisTurn = false;
 
+function updateInstructions(message, highlight = false) {
+    instructionText.textContent = message;
+    if (highlight) {
+        instructionDisplay.classList.add('highlight');
+        setTimeout(() => {
+            instructionDisplay.classList.remove('highlight');
+        }, 2000);
+    } else {
+        instructionDisplay.classList.remove('highlight');
+    }
+}
+
 function updateControlsForTurn() {
     turnDisplay.textContent = `Player ${currentTurn}'s Turn`;
 
@@ -40,6 +54,7 @@ function updateControlsForTurn() {
 
     if (currentTurn === 1) {
         listenButton.style.display = 'none';
+        updateInstructions("You're the first player! Record yourself saying a word or phrase to start the game.", true);
     } else {
         listenButton.style.display = 'inline-block';
         const lastRecording = audioHistory[audioHistory.length - 1];
@@ -47,6 +62,7 @@ function updateControlsForTurn() {
             const reversedAudioUrl = URL.createObjectURL(lastRecording.reversed);
             audioPlayer.src = reversedAudioUrl;
             listenButton.disabled = false; // Enable listening to previous turn's audio
+            updateInstructions("First, listen to the previous player's recording, then try to repeat what you heard!", true);
         }
     }
     endGameButton.style.display = audioHistory.length > 0 ? 'inline-block' : 'none';
@@ -75,6 +91,7 @@ startGameButton.addEventListener('click', async () => {
     endGameButton.disabled = false;
 
     updateControlsForTurn();
+    updateInstructions("Welcome to Enohpelet! Each recording will be played in reverse for the next player.", true);
 });
 
 // Record button hover warning functionality
@@ -103,6 +120,8 @@ recordButton.addEventListener('click', () => {
     nextTurnButton.disabled = true;
     audioPlayer.src = '';
 
+    updateInstructions("🎤 Recording... Speak clearly and press Stop when finished!", false);
+
     mediaRecorder.addEventListener('dataavailable', event => {
         audioChunks.push(event.data);
     });
@@ -117,6 +136,8 @@ stopButton.addEventListener('click', () => {
     nextTurnButton.disabled = false;
     playbackButton.disabled = false;
     hasRecordedThisTurn = true;
+
+    updateInstructions("Great! You can now play back your recording or pass to the next player.", false);
 
     mediaRecorder.addEventListener('stop', async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
@@ -164,6 +185,7 @@ listenButton.addEventListener('click', () => {
     // The audio source is already set in updateControlsForTurn, so we just play.
     audioPlayer.play();
     currentlyPlayingButton = listenButton;
+    updateInstructions("🎧 Playing the previous player's recording (reversed)... Now try to say what you heard!", false);
 });
 
 playbackButton.addEventListener('click', () => {
@@ -173,6 +195,7 @@ playbackButton.addEventListener('click', () => {
         audioPlayer.src = audioUrl;
         audioPlayer.play();
         currentlyPlayingButton = playbackButton;
+        updateInstructions("🎵 Playing back your recording... Happy with it? Pass to the next player!", false);
     }
 });
 
@@ -187,6 +210,8 @@ endGameButton.addEventListener('click', () => {
     turnDisplay.textContent = 'Game Over';
     startGameButton.style.display = 'block';
     // gameContainer.style.display = 'none'; - Keep game container for history
+
+    updateInstructions("🎉 Game finished! Listen to all recordings below to hear how the message evolved!", true);
 
     updateHistory();
     historyContainer.style.display = 'block';

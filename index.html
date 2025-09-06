@@ -14,9 +14,13 @@
 <body>
     <div class="container">
         <h1>Enohpelet</h1>
+        <div class="pronunciation">/ee-NOH-fuh-let/</div>
         <p class="tagline">The classic game of telephone with an ear-bending, backward twist.</p>
         <div id="game-container" style="display: none;">
             <h2 id="turnDisplay"></h2>
+            <div id="instructionDisplay" class="instruction-display">
+                <p id="instructionText">Click "Start New Game" to begin playing!</p>
+            </div>
             <div class="controls">
                 <button id="listenButton" style="display: none;">Listen</button>
                 <div class="record-button-container">
@@ -39,7 +43,7 @@
                         <rect x="9" y="9" width="6" height="6"></rect>
                     </svg><span>Stop</span></button>
                 <button id="playbackButton" class="control-button" disabled><span>Play</span></button>
-                <button id="nextTurnButton" class="control-button" disabled><span>Next Turn</span></button>
+                <button id="nextTurnButton" class="control-button" disabled><span>Next Player</span></button>
             </div>
             <audio id="audioPlayer"></audio>
             <div id="history-container">

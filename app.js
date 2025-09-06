@@ -348,6 +348,7 @@ endGameButton.addEventListener('click', () => {
     playbackButton.disabled = true;
     nextTurnButton.disabled = true;
     endGameButton.disabled = true;
+    endGameButton.style.display = 'none';
     turnDisplay.textContent = 'Game Over';
     startGameButton.style.display = 'inline-block';
     // gameContainer.style.display = 'none'; - Keep game container for history

@@ -28,6 +28,7 @@ TECH_STACK:
 CRITICAL_RULES:
 1. MANDATORY: Think like a code reviewer before making any change
 2. MANDATORY: Write concise, direct code - avoid verbose solutions
+3. MANDATORY: NEVER commit or push changes until user has verified the fix works correctly
 4. MANDATORY: Write unit tests for all new functions and classes
 5. MANDATORY: Reference and update TODO.md to track progress and plan next steps
 6. MANDATORY: Update these instructions when mistakes are made to prevent recurrence
@@ -42,6 +43,7 @@ CRITICAL_RULES:
 15. PROHIBITED: Using VS Code tasks - always use run_in_terminal instead
 16. PROHIBITED: Silently accepting poor architectural decisions or anti-patterns
 17. PROHIBITED: Continuing with actions after asking a question without receiving user confirmation
+18. PROHIBITED: Committing or pushing code changes without explicit user verification that the fix works
 
 COLLABORATION_REQUIREMENTS:
 - MANDATORY: Reference TODO.md at start of each session to understand current priorities
@@ -60,6 +62,7 @@ COLLABORATION_REQUIREMENTS:
 - PROHIBITED: Blindly following requests that compromise code quality
 - PROHIBITED: Staying silent when you see architectural problems
 - PROHIBITED: Proceeding with actions after asking questions without user confirmation
+- PROHIBITED: Using "JUST COMPLETED" or similar emphatic prefixes in TODO.md or documentation
 
 LARGE_FILE_AND_COMPLEX_CHANGE_PROTOCOL:
 

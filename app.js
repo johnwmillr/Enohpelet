@@ -13,6 +13,7 @@ const endGameButton = document.getElementById('endGameButton');
 const recordWarning = document.getElementById('recordWarning');
 const instructionDisplay = document.getElementById('instructionDisplay');
 const instructionText = document.getElementById('instructionText');
+const titleLink = document.getElementById('titleLink');
 
 let mediaRecorder;
 let audioChunks = [];
@@ -27,6 +28,64 @@ let currentTurn = 0;
 let audioHistory = [];
 let currentlyPlayingButton = null;
 let hasRecordedThisTurn = false;
+let microphoneAccessGranted = false; // Track if we've already gotten permission this session
+
+async function ensureMicrophoneAccess() {
+    // If we already confirmed access this session and have an active stream, reuse it
+    if (microphoneAccessGranted && audioStream && audioStream.active) {
+        console.log('Using existing microphone access');
+        return true;
+    }
+
+    // Check if we already have permission using the Permissions API
+    if ('permissions' in navigator) {
+        try {
+            const permission = await navigator.permissions.query({ name: 'microphone' });
+            console.log('Permission state:', permission.state);
+
+            if (permission.state === 'granted') {
+                // We already have permission, just get the stream
+                try {
+                    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    microphoneAccessGranted = true;
+                    console.log('Got microphone access without prompt');
+                    return true;
+                } catch (error) {
+                    console.error('Error getting media stream despite granted permission:', error);
+                    // Fall through to request permission again
+                }
+            } else if (permission.state === 'denied') {
+                alert('Microphone access has been denied. Please enable it in your browser settings and refresh the page.');
+                return false;
+            }
+            // If state is 'prompt', we'll fall through to request permission
+        } catch (error) {
+            console.log('Permissions API query failed (this is normal in some browsers):', error.message);
+            // Fall through to regular getUserMedia approach
+        }
+    } else {
+        console.log('Permissions API not supported');
+    }
+
+    // Either no Permissions API support, permission is 'prompt', or we need to request permission
+    try {
+        console.log('Requesting microphone access...');
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        microphoneAccessGranted = true; // Remember that we got permission this session
+        console.log('Microphone access granted');
+        return true;
+    } catch (error) {
+        console.error('Error accessing microphone:', error);
+        if (error.name === 'NotAllowedError') {
+            alert('Microphone access was denied. Please allow access and try again.');
+        } else if (error.name === 'NotFoundError') {
+            alert('No microphone found. Please connect a microphone and try again.');
+        } else {
+            alert('Error accessing microphone. Please check your browser settings and try again.');
+        }
+        return false;
+    }
+}
 
 function updateInstructions(message, highlight = false) {
     instructionText.textContent = message;
@@ -69,14 +128,9 @@ function updateControlsForTurn() {
 }
 
 startGameButton.addEventListener('click', async () => {
-    if (!audioStream) {
-        try {
-            audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        } catch (error) {
-            console.error('Error accessing microphone:', error);
-            alert('Microphone access is required to play the game. Please allow access and try again.');
-            return;
-        }
+    const hasAccess = await ensureMicrophoneAccess();
+    if (!hasAccess) {
+        return;
     }
 
     gameInProgress = true;
@@ -92,6 +146,57 @@ startGameButton.addEventListener('click', async () => {
 
     updateControlsForTurn();
     updateInstructions("Welcome to Enohpelet! Each recording will be played in reverse for the next player.", true);
+});
+
+function resetToHomePage() {
+    // Stop any ongoing recording
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+    }
+
+    // Stop any playing audio
+    audioPlayer.pause();
+    audioPlayer.src = '';
+
+    // Reset all game state
+    gameInProgress = false;
+    currentTurn = 0;
+    audioHistory = [];
+    currentRecording = { forward: null, reversed: null };
+    hasRecordedThisTurn = false;
+    currentlyPlayingButton = null;
+
+    // Reset UI to initial state
+    gameContainer.style.display = 'none';
+    startGameButton.style.display = 'inline-block';
+    historyContainer.style.display = 'none';
+    historyList.innerHTML = '';
+    recordWarning.style.display = 'none';
+
+    // Reset button states
+    recordButton.disabled = false;
+    stopButton.disabled = true;
+    listenButton.disabled = true;
+    playbackButton.disabled = true;
+    nextTurnButton.disabled = true;
+    endGameButton.disabled = false;
+
+    // Reset button appearance
+    recordButton.classList.remove('recording');
+    recordButton.querySelector('span').textContent = 'Record';
+    if (currentlyPlayingButton) {
+        currentlyPlayingButton.classList.remove('playing');
+        currentlyPlayingButton.style.removeProperty('--playback-duration');
+    }
+
+    // Reset instructions
+    updateInstructions("Click \"Start New Game\" to begin playing!", false);
+    turnDisplay.textContent = '';
+}
+
+titleLink.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevent the default link behavior
+    resetToHomePage();
 });
 
 // Record button hover warning functionality
@@ -208,7 +313,7 @@ endGameButton.addEventListener('click', () => {
     nextTurnButton.disabled = true;
     endGameButton.disabled = true;
     turnDisplay.textContent = 'Game Over';
-    startGameButton.style.display = 'block';
+    startGameButton.style.display = 'inline-block';
     // gameContainer.style.display = 'none'; - Keep game container for history
 
     updateInstructions("🎉 Game finished! Listen to all recordings below to hear how the message evolved!", true);

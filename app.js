@@ -31,9 +31,9 @@ let hasRecordedThisTurn = false;
 let microphoneAccessGranted = false; // Track if we've already gotten permission this session
 
 async function ensureMicrophoneAccess() {
-    // If we already confirmed access this session and have an active stream, reuse it
-    if (microphoneAccessGranted && audioStream && audioStream.active) {
-        console.log('Using existing microphone access');
+    // If we already confirmed access this session, don't ask again
+    if (microphoneAccessGranted) {
+        console.log('Microphone access already granted this session');
         return true;
     }
 
@@ -44,16 +44,10 @@ async function ensureMicrophoneAccess() {
             console.log('Permission state:', permission.state);
 
             if (permission.state === 'granted') {
-                // We already have permission, just get the stream
-                try {
-                    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    microphoneAccessGranted = true;
-                    console.log('Got microphone access without prompt');
-                    return true;
-                } catch (error) {
-                    console.error('Error getting media stream despite granted permission:', error);
-                    // Fall through to request permission again
-                }
+                // We already have permission, just mark it as granted
+                microphoneAccessGranted = true;
+                console.log('Microphone permission already granted');
+                return true;
             } else if (permission.state === 'denied') {
                 alert('Microphone access has been denied. Please enable it in your browser settings and refresh the page.');
                 return false;
@@ -70,9 +64,23 @@ async function ensureMicrophoneAccess() {
     // Either no Permissions API support, permission is 'prompt', or we need to request permission
     try {
         console.log('Requesting microphone access...');
-        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Request permission by getting a stream, then immediately stop it
+        const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        // Stop the temporary stream immediately - we only needed it to get permission
+        const tracks = tempStream.getTracks();
+        console.log('Stopping temporary stream tracks:', tracks.length);
+        tracks.forEach(track => {
+            console.log('Stopping track:', track.kind, track.readyState);
+            track.stop();
+            console.log('Track stopped, new state:', track.readyState);
+        });
+
+        // Wait a moment to ensure cleanup is complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         microphoneAccessGranted = true; // Remember that we got permission this session
-        console.log('Microphone access granted');
+        console.log('Microphone access granted and temporary stream cleaned up');
         return true;
     } catch (error) {
         console.error('Error accessing microphone:', error);
@@ -154,6 +162,12 @@ function resetToHomePage() {
         mediaRecorder.stop();
     }
 
+    // Stop and clean up any active audio stream
+    if (audioStream) {
+        audioStream.getTracks().forEach(track => track.stop());
+        audioStream = null;
+    }
+
     // Stop any playing audio
     audioPlayer.pause();
     audioPlayer.src = '';
@@ -210,8 +224,23 @@ recordButton.addEventListener('mouseleave', () => {
     recordWarning.style.display = 'none';
 });
 
-recordButton.addEventListener('click', () => {
+recordButton.addEventListener('click', async () => {
     if (!gameInProgress) return;
+
+    // We should already have permission from "Start New Game", just create the stream
+    try {
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (error) {
+        console.error('Error getting microphone stream for recording:', error);
+        if (error.name === 'NotAllowedError') {
+            alert('Microphone access was denied. Please refresh the page and allow access when prompted.');
+        } else if (error.name === 'NotFoundError') {
+            alert('No microphone found. Please connect a microphone and try again.');
+        } else {
+            alert('Unable to access microphone for recording. Please check your browser settings.');
+        }
+        return;
+    }
 
     mediaRecorder = new MediaRecorder(audioStream);
     mediaRecorder.start();
@@ -234,6 +263,13 @@ recordButton.addEventListener('click', () => {
 
 stopButton.addEventListener('click', () => {
     mediaRecorder.stop();
+
+    // Stop the audio stream to stop using the microphone
+    if (audioStream) {
+        audioStream.getTracks().forEach(track => track.stop());
+        audioStream = null;
+    }
+
     recordButton.classList.remove('recording');
     recordButton.querySelector('span').textContent = 'Record';
     stopButton.disabled = true;

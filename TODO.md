@@ -10,7 +10,7 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 # Enohpelet Game TODO
 
 ## Current Task
-- None currently in progress.
+- Currently no active tasks - ready for next feature!
 
 ## Backlog
 - Player names associated with each turn.
@@ -20,6 +20,7 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 - Automatically trim silence off the front of somebody's new recording
 
 ## Completed Features
+- **JUST COMPLETED**: Optimized microphone usage - only request permission once on "Start New Game", and only stream from microphone during actual recording (when Record button is pressed until Stop is pressed).
 - Only ask for microphone permissions the first time a user visits the site. The browser should remember and know that the user has previously given microphone permissions.
 - Improve instructions and user feedback (e.g., "Recording...", "Now record what you heard").
 - Add a hover warning box saying they'll overwrite their previous recording when the user mouses over "Record" if they've already recorded a snippet on their turn.

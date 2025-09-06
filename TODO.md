@@ -10,13 +10,13 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 # Enohpelet Game TODO
 
 ## Current Task
-- Currently no active tasks - ready for next feature!
+- Deploy app to GitHub pages
 
 ## Backlog
+- Online multiplayer functionality.
 - Player names associated with each turn.
 - Save game state to `localStorage` to allow resuming a game.
 - Shareable results at the end of a game.
-- Online multiplayer functionality.
 - Automatically trim silence off the front of somebody's new recording
 
 ## Completed Features

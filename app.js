@@ -14,6 +14,7 @@ const recordWarning = document.getElementById('recordWarning');
 const instructionDisplay = document.getElementById('instructionDisplay');
 const instructionText = document.getElementById('instructionText');
 const titleLink = document.getElementById('titleLink');
+const footer = document.getElementById('footer');
 
 let mediaRecorder;
 let audioChunks = [];
@@ -151,6 +152,7 @@ startGameButton.addEventListener('click', async () => {
     gameContainer.style.display = 'block';
     endGameButton.style.display = 'none';
     endGameButton.disabled = false;
+    footer.style.display = 'none';
 
     updateControlsForTurn();
     updateInstructions("Welcome to Enohpelet! Each recording will be played in reverse for the next player.", true);
@@ -186,6 +188,7 @@ function resetToHomePage() {
     historyContainer.style.display = 'none';
     historyList.innerHTML = '';
     recordWarning.style.display = 'none';
+    footer.style.display = 'block';
 
     // Reset button states
     recordButton.disabled = false;

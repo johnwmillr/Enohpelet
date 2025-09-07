@@ -10,10 +10,14 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 # Enohpelet Game TODO
 
 ## Current Task
-- [No current task - previous task completed]
+- Write a `README.md` file for the project. Add a note to your instructions file to keep this README up-to-date as the project develops.
 
 ## Backlog
 - Online multiplayer functionality.
+  - Use a dev branch for this feature.
+  - This is likely a major technical shift for the app. Plan your design thoughtfully from a high level.
+  - Prioritize simplicity and low cost.
+  - Break the new feature down into small, attainable tasks.
 - Player names associated with each turn.
 - Save game state to `localStorage` to allow resuming a game.
 - Shareable results at the end of a game.
@@ -23,6 +27,8 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 - Add a new game where a leader picks a word (e.g. "Going for a walk") and everybody tries to guess (via a recording) what it will sound like in reverse. The leader picks the winner.
 
 ## Completed Features
+- Set up proper Node.js testing environment with Jest
+- Create unit tests for core game functions (debugLog, updateInstructions, audioBufferToWav)
 - Fix mobile browser compatibility for "Play" button - resolved AudioContext suspension issue on mobile Safari
 - Record button now toggles to Stop button while recording (eliminating separate Stop button)
 - Deploy app to GitHub Pages with HTTPS - Live at https://www.johnwmillr.com/Enohpelet/

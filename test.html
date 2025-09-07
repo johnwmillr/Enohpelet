@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enohpelet Tests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-suite {
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .test-case {
+            margin: 10px 0;
+            padding: 5px;
+        }
+
+        .test-pass {
+            color: green;
+            background-color: #f0f8f0;
+        }
+
+        .test-fail {
+            color: red;
+            background-color: #f8f0f0;
+        }
+
+        .test-summary {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .summary-pass {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .summary-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Enohpelet Unit Tests</h1>
+    <div id="test-output"></div>
+
+    <!-- Mock DOM elements that the app expects -->
+    <div style="display: none;">
+        <button id="recordButton"><span>Record</span></button>
+        <button id="listenButton">Listen</button>
+        <button id="playbackButton">Play</button>
+        <audio id="audioPlayer"></audio>
+        <button id="startGameButton">Start Game</button>
+        <button id="nextTurnButton">Next Turn</button>
+        <div id="turnDisplay"></div>
+        <div id="history"></div>
+        <div id="history-container"></div>
+        <div id="game-container"></div>
+        <button id="endGameButton">End Game</button>
+        <div id="recordWarning"></div>
+        <div id="instructionDisplay">
+            <div id="instructionText"></div>
+        </div>
+        <a id="titleLink" href="#">Title</a>
+        <div id="footer"></div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="tests.js"></script>
+</body>
+
+</html>

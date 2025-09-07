@@ -18,8 +18,12 @@ This project is a web-based game called "Enohpelet," which is "Telephone" spelle
 - Save game state to `localStorage` to allow resuming a game.
 - Shareable results at the end of a game.
 - Automatically trim silence off the front of somebody's new recording
+- Show the waveform the user is trying to recreate with their own speech
+- Add a new game type where the leader says a phrase and everybody else has to repeat the phrase after hearing it in reverse. The leader then picks the winner of that round.
+- Add a new game where a leader picks a word (e.g. "Going for a walk") and everybody tries to guess (via a recording) what it will sound like in reverse. The leader picks the winner.
 
 ## Completed Features
+- Fix mobile browser compatibility for "Play" button - resolved AudioContext suspension issue on mobile Safari
 - Record button now toggles to Stop button while recording (eliminating separate Stop button)
 - Deploy app to GitHub Pages with HTTPS - Live at https://www.johnwmillr.com/Enohpelet/
 - Hide End Game button after clicking it to prevent confusion

@@ -19,7 +19,9 @@ let mediaRecorder;
 let audioChunks = [];
 let currentRecording = {
     forward: null,
-    reversed: null
+    reversed: null,
+    forwardUrl: null,
+    reversedUrl: null
 };
 let audioStream = null;
 
@@ -29,6 +31,43 @@ let audioHistory = [];
 let currentlyPlayingButton = null;
 let hasRecordedThisTurn = false;
 let microphoneAccessGranted = false; // Track if we've already gotten permission this session
+
+// Debug configuration - set to true to enable debug logging
+const DEBUG_MODE = false;
+
+function debugLog(message) {
+    if (!DEBUG_MODE) return;
+
+    console.log('[DEBUG]', message);
+
+    // Also show debug info on the page for mobile debugging
+    const existingDebug = document.getElementById('debug-info');
+    if (existingDebug) {
+        existingDebug.innerHTML += '<br>' + message;
+        existingDebug.scrollTop = existingDebug.scrollHeight;
+    } else {
+        const debugDiv = document.createElement('div');
+        debugDiv.id = 'debug-info';
+        debugDiv.style.cssText = `
+            position: fixed; 
+            top: 10px; 
+            right: 10px; 
+            background: rgba(0,0,0,0.9); 
+            color: white; 
+            padding: 10px; 
+            font-size: 11px; 
+            max-width: 300px; 
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 9999; 
+            border-radius: 5px;
+            font-family: monospace;
+            line-height: 1.2;
+        `;
+        debugDiv.innerHTML = message;
+        document.body.appendChild(debugDiv);
+    }
+}
 
 async function ensureMicrophoneAccess() {
     // If we already confirmed access this session, don't ask again
@@ -126,9 +165,8 @@ function updateControlsForTurn() {
     } else {
         listenButton.style.display = 'inline-block';
         const lastRecording = audioHistory[audioHistory.length - 1];
-        if (lastRecording && lastRecording.reversed) {
-            const reversedAudioUrl = URL.createObjectURL(lastRecording.reversed);
-            audioPlayer.src = reversedAudioUrl;
+        if (lastRecording && lastRecording.reversedUrl) {
+            audioPlayer.src = lastRecording.reversedUrl;
             listenButton.disabled = false; // Enable listening to previous turn's audio
             updateInstructions("First, listen to the previous player's recording, then try to repeat what you heard!", true);
         }
@@ -178,7 +216,7 @@ function resetToHomePage() {
     gameInProgress = false;
     currentTurn = 0;
     audioHistory = [];
-    currentRecording = { forward: null, reversed: null };
+    currentRecording = { forward: null, reversed: null, forwardUrl: null, reversedUrl: null };
     hasRecordedThisTurn = false;
     currentlyPlayingButton = null;
 
@@ -251,12 +289,24 @@ recordButton.addEventListener('click', async () => {
         updateInstructions("Great! You can now play back your recording or pass to the next player.", false);
 
         mediaRecorder.addEventListener('stop', async () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-            currentRecording.forward = audioBlob;
+            // Use the raw MediaRecorder blob directly for forward audio
+            const originalBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+            currentRecording.forward = originalBlob;
             audioChunks = [];
 
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const arrayBuffer = await audioBlob.arrayBuffer();
+
+            // Resume the AudioContext if it's suspended (mobile Safari fix)
+            if (audioContext.state === 'suspended') {
+                try {
+                    await audioContext.resume();
+                    console.log('AudioContext resumed for audio processing');
+                } catch (error) {
+                    console.error('Failed to resume AudioContext:', error);
+                }
+            }
+
+            const arrayBuffer = await originalBlob.arrayBuffer();
             const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
             // Reverse the audio
@@ -278,11 +328,15 @@ recordButton.addEventListener('click', async () => {
             const wav = audioBufferToWav(reversedBuffer);
             currentRecording.reversed = new Blob([wav], { type: 'audio/wav' });
 
+            // Pre-create blob URLs - use original MediaRecorder blob for forward
+            currentRecording.forwardUrl = URL.createObjectURL(currentRecording.forward);
+            currentRecording.reversedUrl = URL.createObjectURL(currentRecording.reversed);
+
             audioHistory.push(currentRecording);
             // updateHistory(); - We will call this at the end of the game
 
-            const audioUrl = URL.createObjectURL(currentRecording.forward);
-            audioPlayer.src = audioUrl;
+            // Set the audio player source to the pre-created URL
+            audioPlayer.src = currentRecording.forwardUrl;
         });
         return;
     }
@@ -322,7 +376,7 @@ recordButton.addEventListener('click', async () => {
 
 nextTurnButton.addEventListener('click', () => {
     currentTurn++;
-    currentRecording = { forward: null, reversed: null };
+    currentRecording = { forward: null, reversed: null, forwardUrl: null, reversedUrl: null };
     updateControlsForTurn();
 });
 
@@ -335,12 +389,19 @@ listenButton.addEventListener('click', () => {
 
 playbackButton.addEventListener('click', () => {
     // This plays the original recording for the CURRENT turn, after it's been recorded.
-    if (currentRecording.forward) {
-        const audioUrl = URL.createObjectURL(currentRecording.forward);
-        audioPlayer.src = audioUrl;
+    // Use the pre-created URL to ensure mobile compatibility
+    debugLog('Play button clicked');
+    debugLog(`currentRecording exists: ${!!currentRecording}`);
+    debugLog(`forwardUrl exists: ${!!currentRecording.forwardUrl}`);
+
+    if (currentRecording.forwardUrl) {
+        debugLog('Setting audio source and playing...');
+        audioPlayer.src = currentRecording.forwardUrl;
         audioPlayer.play();
         currentlyPlayingButton = playbackButton;
         updateInstructions("🎵 Playing back your recording... Happy with it? Pass to the next player!", false);
+    } else {
+        debugLog('ERROR: No forward URL available for playback');
     }
 });
 
@@ -407,10 +468,12 @@ function updateHistory() {
         button.addEventListener('click', (e) => {
             const index = e.target.dataset.index;
             const type = e.target.dataset.type;
-            const audioUrl = URL.createObjectURL(audioHistory[index][type]);
-            audioPlayer.src = audioUrl;
-            audioPlayer.play();
-            currentlyPlayingButton = e.target;
+            const urlKey = type === 'forward' ? 'forwardUrl' : 'reversedUrl';
+            if (audioHistory[index][urlKey]) {
+                audioPlayer.src = audioHistory[index][urlKey];
+                audioPlayer.play();
+                currentlyPlayingButton = e.target;
+            }
         });
     });
 }

@@ -33,18 +33,19 @@ CRITICAL_RULES:
 5. MANDATORY: Keep existing tests up to date when modifying code and add new tests as functionality grows
 6. MANDATORY: Reference and update TODO.md to track progress and plan next steps
 7. MANDATORY: Update these instructions when mistakes are made to prevent recurrence
-8. MANDATORY: Follow git-commit-instructions.md for all commit messages
-9. MANDATORY: PUSH BACK on approaches that compromise code quality, security, or maintainability
-10. MANDATORY: CHALLENGE requests that violate best practices - your job is to write the best code possible
-11. MANDATORY: If your response contains a question mark (?), you MUST wait for the user's answer before proceeding
-12. PROHIBITED: Installing new packages unless explicitly requested
-13. PROHIBITED: Loading web apps automatically
-14. PROHIBITED: Overly complex or verbose implementations
-15. PROHIBITED: Writing production code without corresponding tests
-16. PROHIBITED: Using VS Code tasks - always use run_in_terminal instead
-17. PROHIBITED: Silently accepting poor architectural decisions or anti-patterns
-18. PROHIBITED: Continuing with actions after asking a question without receiving user confirmation
-19. PROHIBITED: Committing or pushing code changes without explicit user verification that the fix works
+8. MANDATORY: Keep README.md up-to-date as the project develops with accurate feature descriptions, installation instructions, and project status
+9. MANDATORY: Follow git-commit-instructions.md for all commit messages
+10. MANDATORY: PUSH BACK on approaches that compromise code quality, security, or maintainability
+11. MANDATORY: CHALLENGE requests that violate best practices - your job is to write the best code possible
+12. MANDATORY: If your response contains a question mark (?), you MUST wait for the user's answer before proceeding
+13. PROHIBITED: Installing new packages unless explicitly requested
+14. PROHIBITED: Loading web apps automatically
+15. PROHIBITED: Overly complex or verbose implementations
+16. PROHIBITED: Writing production code without corresponding tests
+17. PROHIBITED: Using VS Code tasks - always use run_in_terminal instead
+18. PROHIBITED: Silently accepting poor architectural decisions or anti-patterns
+19. PROHIBITED: Continuing with actions after asking a question without receiving user confirmation
+20. PROHIBITED: Committing or pushing code changes without explicit user verification that the fix works
 
 COLLABORATION_REQUIREMENTS:
 - MANDATORY: Reference TODO.md at start of each session to understand current priorities
